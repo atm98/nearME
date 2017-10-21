@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">nearME</string>
+    <string name="log_in">LOG IN</string>
+    <string name="new_user_sign_in">New User ,Sign In</string>
+    <string name="password">PASSWORD</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="email">EMAIL</string>
+    <string name="please_enter_email_and_password_to_login">Please Enter Email and Password to Login</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="event_name">EVENT NAME</string>
+    <string name="add_new_event">ADD NEW EVENT</string>
+    <string name="google_maps_api_key">AIzaSyAv_uBeEC7DYXKIB1F8Nji4lJaEex8cy7U</string>
+    <string name="event_description">EVENT DESCRIPTION</string>
+    <string name="location">LOCATION</string>
+
+</resources>

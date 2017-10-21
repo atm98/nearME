@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1077030758191",
+    "firebase_url": "https://sapianscompute.firebaseio.com",
+    "project_id": "sapianscompute",
+    "storage_bucket": "sapianscompute.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1077030758191:android:48d9a53a805cd6c3",
+        "android_client_info": {
+          "package_name": "com.agnt45.nearme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1077030758191-dp132psfe0t5bp7qrgbprdhpd643amjf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtg_x3DxfUjj75KyLEpHJgVkppaqN82QY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1077030758191-dp132psfe0t5bp7qrgbprdhpd643amjf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
