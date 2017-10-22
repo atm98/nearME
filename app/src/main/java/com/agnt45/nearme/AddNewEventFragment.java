@@ -5,8 +5,10 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,13 +37,23 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
 
 import static android.app.Activity.RESULT_OK;
 
@@ -59,12 +71,14 @@ public class AddNewEventFragment extends Fragment {
     private TimePickerDialog.OnTimeSetListener onTimeSetListener;
     private String Date,Time,EventName,EventDescription;
     private List<String> Location;
-    private Button UplaoadData;
+    private Button UplaoadData,UploadImage;
 
     FirebaseUser firebaseUser;
     ProgressDialog progressDialog;
 
     int PLACE_PICKER_REQUEST=1;
+    private Uri downloadurl;
+
     public AddNewEventFragment() {
         // Required empty public constructor
 
@@ -88,6 +102,7 @@ public class AddNewEventFragment extends Fragment {
         eventdesc = mview.findViewById(R.id.event_desc);
         location = mview.findViewById(R.id.event_location);
         UplaoadData = mview.findViewById(R.id.eventadd);
+        UploadImage = mview.findViewById(R.id.eventpic);
         Location = new ArrayList<>();
         progressDialog = new ProgressDialog(getContext());
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -144,6 +159,15 @@ public class AddNewEventFragment extends Fragment {
                 Date = datePicker.getText().toString();
             }
         };
+        UploadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CropImage.activity()
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .setAspectRatio(1,1)
+                        .start(getActivity());
+            }
+        });
         UplaoadData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -160,6 +184,7 @@ public class AddNewEventFragment extends Fragment {
                     EventMap.put("Event_Date:",Date);
                     EventMap.put("Event_Time:",Time);
                     EventMap.put("Event_Location:",Location);
+                    EventMap.put("Event_Picture",downloadurl.toString());
 
                     documentReference.collection("Myevents").add(EventMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
@@ -181,17 +206,6 @@ public class AddNewEventFragment extends Fragment {
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -205,6 +219,34 @@ public class AddNewEventFragment extends Fragment {
 
                 Location.add(place.getName().toString());
             }
+            else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+                CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                if (resultCode == RESULT_OK) {
+                    Uri resultUri = result.getUri();
+                    progressDialog.setTitle("Uploading Image..");
+                    progressDialog.setMessage("Image selected is being Uploaded please wait...");
+                    progressDialog.setCanceledOnTouchOutside(false);
+                    StorageReference storageReference = FirebaseStorage.getInstance().getReference().
+                            child("Users").child("MyEvents").child(eventdesc.getEditText().getText().toString());
+                    storageReference.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            downloadurl = taskSnapshot.getDownloadUrl();
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.hide();
+                        }
+                    });
+
+                } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                    Exception error = result.getError();
+                }
+            }
+
         }
     }
 }
