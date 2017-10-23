@@ -77,7 +77,7 @@ public class AddNewEventFragment extends Fragment {
     ProgressDialog progressDialog;
 
     int PLACE_PICKER_REQUEST=1;
-    private Uri downloadurl;
+    private String downloadurl;
 
     public AddNewEventFragment() {
         // Required empty public constructor
@@ -165,7 +165,8 @@ public class AddNewEventFragment extends Fragment {
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .setAspectRatio(1,1)
-                        .start(getActivity());
+                        .start(getContext(),AddNewEventFragment.this);
+
             }
         });
         UplaoadData.setOnClickListener(new View.OnClickListener() {
@@ -228,17 +229,16 @@ public class AddNewEventFragment extends Fragment {
                     progressDialog.setCanceledOnTouchOutside(false);
                     StorageReference storageReference = FirebaseStorage.getInstance().getReference().
                             child("Users").child("MyEvents").child(eventdesc.getEditText().getText().toString());
-                    storageReference.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    storageReference.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            progressDialog.dismiss();
-                            downloadurl = taskSnapshot.getDownloadUrl();
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            progressDialog.hide();
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if(task.isSuccessful()){
+                                progressDialog.dismiss();
+                                downloadurl = task.getResult().getDownloadUrl().toString();
+                            }
+                            else{
+                                progressDialog.hide();
+                            }
                         }
                     });
 
