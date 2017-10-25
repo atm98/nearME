@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -104,7 +105,7 @@ public class AddNewEventFragment extends Fragment {
         UplaoadData = mview.findViewById(R.id.eventadd);
         UploadImage = mview.findViewById(R.id.eventpic);
         Location = new ArrayList<>();
-        progressDialog = new ProgressDialog(getContext());
+        progressDialog = new ProgressDialog(getActivity());
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         documentReference = FirebaseFirestore.getInstance().collection("Users").document(firebaseUser.getUid());
         location.setOnClickListener(new View.OnClickListener() {
@@ -185,7 +186,7 @@ public class AddNewEventFragment extends Fragment {
                     EventMap.put("Event_Date:",Date);
                     EventMap.put("Event_Time:",Time);
                     EventMap.put("Event_Location:",Location);
-                    EventMap.put("Event_Picture",downloadurl.toString());
+                    EventMap.put("Event_Picture",downloadurl);
 
                     documentReference.collection("Myevents").add(EventMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
@@ -210,43 +211,53 @@ public class AddNewEventFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PLACE_PICKER_REQUEST){
-            if(resultCode == RESULT_OK){
-                Place place = PlacePicker.getPlace(getActivity(),data);
-                String place_add = String.format(" %s",place.getAddress());
+        if(requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(getActivity(), data);
+                String place_add = String.format(" %s", place.getAddress());
                 location.setText(place_add);
 
                 Location.add(location.getText().toString());
 
                 Location.add(place.getName().toString());
             }
+        }
             else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 if (resultCode == RESULT_OK) {
+                    Log.d("DEBUG:","entered 1");
                     Uri resultUri = result.getUri();
+                    Log.d("DEBUG:","entered 2");
+
                     progressDialog.setTitle("Uploading Image..");
                     progressDialog.setMessage("Image selected is being Uploaded please wait...");
                     progressDialog.setCanceledOnTouchOutside(false);
-                    StorageReference storageReference = FirebaseStorage.getInstance().getReference().
-                            child("Users").child("MyEvents").child(eventdesc.getEditText().getText().toString());
-                    storageReference.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    progressDialog.show();
+                    final StorageReference storageReference = FirebaseStorage.getInstance().getReference().
+                            child("Users").child("MyEvents").child(firebaseUser.getUid()).child(eventdesc.getEditText().getText().toString());
+                    Log.d("DEBUG",storageReference.toString());
+                    storageReference.child("picture.jpg").putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                             if(task.isSuccessful()){
+                                Log.d("DEBUG:",task.toString());
                                 progressDialog.dismiss();
                                 downloadurl = task.getResult().getDownloadUrl().toString();
+                                Toast.makeText(getContext(),"File Uploaded",Toast.LENGTH_LONG).show();
                             }
                             else{
                                 progressDialog.hide();
+                                Toast.makeText(getContext(),"Error in Uploading File",Toast.LENGTH_LONG).show();
                             }
                         }
                     });
 
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                     Exception error = result.getError();
+
                 }
             }
 
         }
     }
-}
+
