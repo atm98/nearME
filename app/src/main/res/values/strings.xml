@@ -14,5 +14,6 @@
     <string name="google_maps_api_key">AIzaSyAv_uBeEC7DYXKIB1F8Nji4lJaEex8cy7U</string>
     <string name="event_description">EVENT DESCRIPTION</string>
     <string name="location">LOCATION</string>
+    <string name="send_verificaion_mail">SEND VERIFICAION MAIL</string>
 
 </resources>
